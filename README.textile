@@ -1,0 +1,7 @@
+h1. Temat projektu
+
+Odtwarzanie położenia pojazdów komunikacji miejskiej na podstawie redundantnych danych[1] z niezaufanego źródła.
+
+Projekt powstał w ramach zajęć pt. _Przetwarzanie rozproszone i równoległe_ na Politechnice Krakowskiej.
+
+fn1. dane są ciągiem odległości od przystanku na którym dany pojazd ostatnio się zatrzymał i pochodzą z aplikacji działającej na mobilnym urządzeniu pasażera/ów komunikacji miejskiej.

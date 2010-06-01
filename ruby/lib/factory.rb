@@ -18,11 +18,11 @@ def distance(start, finish)
   r * c * 1000
 end
 
-db = CouchRest.database("http://Wasiutynski:staszek@db.wasiutynski.net/blips")
+db = CouchRest.database("http://Wasiutynski:staszek@db.wasiutynski.net/blips_development")
 date = Time.now
 
 timetables = []
-all_lines = Line.all
+all_lines = Line.by_no :startkey => [1], :endkey => [100]
 
 # Chose lines_count random lines
 lines_count.times do |i|
