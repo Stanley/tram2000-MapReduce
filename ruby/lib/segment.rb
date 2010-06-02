@@ -53,31 +53,30 @@ class Segment
     
     dx = x2 - x1
     dy = y2 - y1
-    dr = Math.sqrt(dx**2 + dy**2)
+    dr = Math.sqrt(dx**2 + dy**2) # Caution: this is estimation
     d = x1*y2 - x2*y1    
     delta = r**2 * dr**2 - d**2    
 
     sgn = lambda{ |x| x < 0 ? -1 : 1 }
+    coordinates = lambda do |sign|
+      x = (d*dy + sign * sgn[dy] * dx * Math.sqrt(delta)) / dr**2
+      y = (-d*dx + sign * dy.abs * Math.sqrt(delta)) / dr**2
+
+      intersection_lat = 180*y / (Math::PI * R) + lat
+      intersection_lng = x / ( Math.cos(intersection_lat*Rad)*R) * (180/Math::PI) + lng
+      
+      [intersection_lat, intersection_lng] if (@a[1]..@b[1]).include?(intersection_lng) || (@b[1]..@a[1]).include?(intersection_lng)
+    end
     
     if delta > 0
-          
       # Return closest point (to point @a) of two
-      [-1, 1].map do |sign|
-      
-        x = (d*dy + sign * sgn[dy] * dx * Math.sqrt(delta)) / dr**2
-        y = (-d*dx + sign * dy.abs * Math.sqrt(delta)) / dr**2
-
-        intersection_lat = 180*y / (Math::PI * R) + lat
-        intersection_lng = x / ( Math.cos(intersection_lat*Rad)*R) * (180/Math::PI) + lng
-        
-        [intersection_lat, intersection_lng] if (@a[1]..@b[1]).include?(intersection_lng) || (@b[1]..@a[1]).include?(intersection_lng)
-        
-      end.compact.sort_by{|x,y| y }.first
-            
-    elsif delta < 0
-      nil
+      [-1, 1].map{ |sign| coordinates[sign] }.compact.sort_by{|x,y| y }.first
+    elsif delta == 0
+      # Tangent line: only one point
+      coordinates[0]
     else
-      p "==0"
+      # No intersecting points
+      nil
     end
   end
 end

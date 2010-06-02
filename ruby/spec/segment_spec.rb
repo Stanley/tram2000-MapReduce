@@ -1,4 +1,7 @@
-require File.dirname(__FILE__) + "/../lib/segment"
+$: << File.join(File.dirname(__FILE__), "/../lib") 
+require 'segment'
+
+Perimeter = 40_041_455
 
 describe Segment do
 
@@ -11,20 +14,20 @@ describe Segment do
     
     it "should return length in meters" do
       segment = Segment.new([50.0, 20.0],[51.0, 20.0])
-      segment.length.should be_close 111209, 0.5
+      segment.length.should be_close Perimeter/360, 50
       
-      segment = Segment.new([50.0, 20.0],[50.0, 21.0])
-      segment.length.should be_close 71474, 0.5
-      
-      segment = Segment.new([50.0, 20.0],[51.0, 21.0])
-      segment.length.should be_close 131792, 0.5
+      segment = Segment.new([0, 0],[0, 1])
+      segment.length.should be_close Perimeter/360, 50
     end
     
   end
   
   describe "intersection" do
   
-    it "should find one intersection with circle (tangent)"
+    it "should find one intersection with circle (tangent)" do
+      segment = Segment.new([1, -1],[1, 1])
+      segment.intersection(0, 0, Segment.length([0,0],[1,0])).should eql([1,0])
+    end
     
     it "should return null value when there is no interesction" do
       segment = Segment.new([50.0, 20.0],[51.0, 21.0])
@@ -32,7 +35,7 @@ describe Segment do
       segment.intersection(50.0, 21.0, 30_000).should be_nil
     end
     
-    it "should return one intersection with circle when segments begins inside and ends outside" do
+    it "should return one intersection with circle when segments begins inside and ends outside" do   
       segment = Segment.new([50.0, 20.0],[51.0, 21.0])
       segment.intersection(50.0, 20.0, segment.length/2).should eql([50.5, 20.5])
     end 
