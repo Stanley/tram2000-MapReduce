@@ -27,6 +27,14 @@ class Segment
   def length
     Segment.length(@a, @b)
   end
+  
+  def first
+    @a
+  end
+  
+  def last
+    @b
+  end
 
   # Finds segment intersecion(s) with circle
   # In case of two points, the one closer to segment beginning (@a) will be returned
