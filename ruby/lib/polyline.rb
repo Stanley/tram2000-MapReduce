@@ -1,6 +1,6 @@
 class Polyline
 
-  # Decode polyline fron string
+  # Decode polyline from string
   # Returns: Array of coordinates ([lat,lng])
   def self.decode(polyline)
 
@@ -44,7 +44,7 @@ class Polyline
     end
     
     return array
-  end  
+  end
 
   # Utility for creating Google Maps Encoded GPolylines
   # License: You may distribute this code under the same terms as Ruby itself
@@ -86,15 +86,13 @@ class Polyline
     # We need to recalculate our zoom breaks
     calculate_zoom_breaks()
   end
-  
+
+  # This is an implementation of the Douglas-Peucker algorithm for simplifying
+  # a line. You can thing of it as an elimination of points that do not
+  # deviate enough from a vector. That threshold for point elimination is in
+  # @@dp_threshold. See: http://everything2.com/index.pl?node_id=859282 for an explanation of the algorithm
+  # Returns: string
   def encode( points )
-  
-    # This is an implementation of the Douglas-Peucker algorithm for simplifying
-    # a line. You can thing of it as an elimination of points that do not
-    # deviate enough from a vector. That threshold for point elimination is in
-    # @@dp_threshold. See: http://everything2.com/index.pl?node_id=859282
-    #
-    # for an explanation of the algorithm
     
     max_dist = 0  # Greatest distance we measured during the run
     stack = []

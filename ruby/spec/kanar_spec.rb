@@ -1,79 +1,39 @@
-$: << File.join(File.dirname(__FILE__), "/../lib") 
-require 'kanar'
-
-class Blip
-  def self.new(args)
-    defaults = {:user => "anonym", :time => Time.new.to_i}
-    super(defaults.merge(args))
-  end
-end
+$: << File.join(File.dirname(__FILE__), "/.")
+require 'spec_helper'
 
 describe Kanar do
-  describe "mean" do
-    it "should calculate the mean" do
-      Kanar.mean([Blip.new(:data => Blip.encode([0,1,2,3])), Blip.new(:data => Blip.encode([0,3,4,5]))]).should eql([0,2,5,9])
+  describe "validation" do
+    # Journey from A to B through C (111m+71m)
+    before :all do
+      encoder = Polyline.new
+      @trace = Kanar.validate( "1:" + encoder.encode([[50.0, 20.0],[50.001, 20.0],[50.001, 20.001]])[:points],[
+        Blip.new({ :data => Blip.encode([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 22, 22, 22, 22, 23, 1, 2, 5, 6, 7]), :user => "foo", :time => Time.parse("26.06.2010 16:30:02") }),
+        Blip.new({ :data => Blip.encode([0, 0, 0, 22, 22, 22, 22, 23, 1, 2, 5, 6, 7]), :user => "bar", :time => Time.parse("26.06.2010 16:30:10") }),
+        Blip.new({ :data => Blip.encode([0, 0, 0, 3, 6, 1, 9, 4, 2, 8, 5, 4, 7]), :user => "fake", :time => Time.parse("26.06.2010 16:30:10") }),
+        Blip.new({ :data => Blip.encode([0, 0, 0, 3, 6, 1, 9, 4, 2, 8, 5, 4, 7, 3, 6, 8]), :user => "fake2", :time => Time.parse("26.06.2010 16:30:10") }),
+        Blip.new({ :data => Blip.encode([0, 0, 0, 22, 22, 22, 22, 23, 1, 2, 5, 6, 7]), :user => "fake3", :time => Time.parse("26.06.2010 16:20:10") })
+      ])
     end
 
-    it "should calculate the mean and cut of waiting time" do
-      Kanar.mean([Blip.new(:data => Blip.encode([1,-1,1,2,3])), Blip.new(:data => Blip.encode([2,-1,-1,3,4,5]))]).should eql([0,2,5,9])
+    it "should return polyline id" do
+      @trace[:polyline_id].should eql("1")
     end
-    
-    it "should return trace starting from departure" do
-      Kanar.mean([Blip.new(:data => Blip.encode([1,-1,1,1,2,1])), Blip.new(:data => Blip.encode([3,-3,1,1,2,1]))]).should eql([0,1,2,4,5])
-    end
-  end
-    
-  describe "validation" do
-    it "should calculate waiting time for each blip owner" do
-      Kanar.validate( "",
-                      [
-                        Blip.new({ :data => Blip.encode([1,0,0,0,0,0,0,0,0,0,-1,1,1,1,2,3,4,3,3,3,2,1,0]), :user => "foo" }),
-                        Blip.new({ :data => Blip.encode([0,0,0,1,1,1,2,3,4,3,3,3,2,1,0]), :user => "bar" })
-                      ]
-                    )[:pass].should eql({
-                      "foo" => 10,
-                      "bar" => 2
-                    })
+
+    it "should estimate departure time" do
+      @trace[:time].should eql(Time.parse("26.06.2010 16:30:13").to_i)
     end
     
     it "should discard fake blips" do
-      Kanar.validate( "",
-                      Array.new(10, Blip.new(:data => Blip.encode([-2,0,-2,1,1,1,2,2,2,3,1,2,4,5,6,3,2,1,0,0,0,0,1,1,2,3,1]))) + [
-                        Blip.new({ :data => Blip.encode([1,0,0,0,0,0,0,0,0,0,-1,1,1,1,2,3,4,3,3,3,2,1,0]), :user => "foo" }),
-                        Blip.new({ :data => Blip.encode([0,0,0,1,1,1,2,3,4,3,3,3,2,1,0]), :user => "bar" })
-                      ]
-                    )[:fake].should eql(["foo", "bar"])
+      @trace[:polluters].should eql(["fake", "fake2", "fake3"])
     end
-  end
-  
-  describe "-ek" do
-    it "should tell the time of departure" do
-      beg = Time.now.to_i
-      
-      Kanar.validate(nil, [Blip.new(:data => Blip.encode( Array.new(10,1) ), :time => beg)])[:time].should eql(beg)
-      
-      Kanar.validate(nil, [Blip.new(:data => Blip.encode( [2,0,-2] + Array.new(9,1) ), :time => beg-2)])[:time].should eql(beg)
-      
-      Kanar.validate(nil, [
-        Blip.new(:data => Blip.encode( [2,0,-2] + Array.new(9,1) ), :time => beg-2),
-        Blip.new(:data => Blip.encode( [1,1,0,0,0,0,0,-2] + Array.new(9,1) ), :time => beg-7),
-        Blip.new(:data => Blip.encode( [0,2,1,0,0,-2,0,1,0,0,-2] + Array.new(9,1) ), :time => beg-10)
-      ])[:time].should eql(beg)
+
+    it "should calculate waiting time for each valid blip submitter" do
+      @trace[:commuters].should eql({"foo"=>11, "bar"=>3})
     end
+
     
-    it "should return array of relative (to path) distances ridden in each second" do
-      # Straight line
-      Kanar.validate("foo:" + Polyline.new.encode([[50,20],[50,21]])[:points], [Blip.new(:data => Blip.encode( Array.new(60,1) ))])[:footprint].should eql( Array.new(60,1) )
-      
-      # Go straight (for 40 sec) and go back (for 20 sec)
-      Kanar.validate("foo:" + Polyline.new.encode([[50,20],[50,21]])[:points], [Blip.new(:data => Blip.encode( Array.new(40,1) + Array.new(20,-1) ))])[:footprint].should eql( Array.new(60,1) )
-      
-      # Go straight and turn left
-    end
-  
-    it "sum of distances should be equal to the length of path" do
-      points = Polyline.new.encode([[50,20],[50,21],[51,21]])[:points]
-      Kanar.validate("foo:" + points, [Blip.new(:data => Blip.encode( Array.new(60,1) ))])[:footprint].size.should eql( Polyline.decode(polyline).size )
+    it "should tell where the vehicle was in each second" do
+      @trace[:points].should be_similar([[50.0002, 20.0],[50.0004, 20.0],[50.0006, 20.0],[50.0008, 20.0],[50.001, 20.0],[50.001, 20.0002],[50.001, 20.0004],[50.001, 20.0006],[50.001, 20.0008], [50.001, 20.001]], 0.00005)
     end
   end
 end

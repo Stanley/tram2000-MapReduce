@@ -73,7 +73,8 @@ class Segment
       intersection_lat = 180*y / (Math::PI * R) + lat
       intersection_lng = x / ( Math.cos(intersection_lat*Rad)*R) * (180/Math::PI) + lng
       
-      [intersection_lat, intersection_lng] if (@a[1]..@b[1]).include?(intersection_lng) || (@b[1]..@a[1]).include?(intersection_lng)
+      [intersection_lat, intersection_lng] if (@a[1]..@b[1]).include?(intersection_lng) || (@b[1]..@a[1]).include?(intersection_lng) and
+                                              (@a[0]..@b[0]).include?(intersection_lat) || (@b[0]..@a[0]).include?(intersection_lat)
     end
     
     if delta > 0
