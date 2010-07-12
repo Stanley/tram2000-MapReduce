@@ -1,4 +1,4 @@
-$: << '.'
+$: << File.join(File.dirname(__FILE__))
 require 'polyline'
 require 'segment'
 require 'blip'
@@ -15,7 +15,6 @@ class Kanar
   # * polluters - Array of users who send rubbish
   # * points - Array of coordinates: [lat, lng]. One pair per second.
   def self.validate(polyline, blips)
-
     @blips = blips
     # Output value
     trace = {}
@@ -35,18 +34,18 @@ class Kanar
       waited = acc.size - cut_acc.size
 
       # Waiting time + trip time
-      blip[:split] = [waited, cut_acc.size]
+      blip['split'] = [waited, cut_acc.size]
       # Remember accumulates distances
-      blip[:acc] = cut_acc
+      blip['acc'] = cut_acc
 
-      departure_times << blip[:time] + waited
+      departure_times << blip['time'] + waited
       trip_times << cut_acc.size
     end
 
     # Find departure time
     departure_times.sort!
     prev = nil
-    trace[:time] = departure_times.inject({}) do |hash,time|
+    trace['time'] = departure_times.inject({}) do |hash,time|
       # Maximum difference is 10 sec
       if prev && prev+10 >= time
         hash[prev] += 1
@@ -71,11 +70,11 @@ class Kanar
       hash
     end.max{|x,y| x[1] <=> y[1]}.first
 
-    trace[:commuters] = {}
-    trace[:polluters] = []
+    trace['commuters'] = {}
+    trace['polluters'] = []
 
-    trace[:polyline_id], encoded_polyline = polyline.split(":")
-    steps = Polyline.decode(encoded_polyline) # polyline.gsub("\\\\", "\\")
+    trace['polyline_id'], encoded_polyline = polyline.split(":")
+    steps = Polyline.decode(encoded_polyline.gsub("\\\\", "\\")) # polyline
     # TODO: upewnić się co do kierunku odcinka
     total_distance = Segment.length(steps.first, steps.last)
 
@@ -86,13 +85,13 @@ class Kanar
     @blips.each do |blip|
       time_delta = trip_time*0.05
       dist_delta = total_distance*0.05
-      if (trip_time - blip[:split][1]).abs < time_delta and
-         (trace[:time] - blip[:time].to_i - blip[:split][0]).abs < 10 and
-         (total_distance - blip[:acc].first).abs < dist_delta
+      if (trip_time - blip['split'][1]).abs < time_delta and
+         (trace['time'] - blip['time'].to_i - blip['split'][0]).abs < 10 and
+         (total_distance - blip['acc'].first).abs < dist_delta
         # Measurement is considered correct. Remember waiting time.
-        trace[:commuters][blip[:user]] = blip[:split][0]
+        trace['commuters'][blip['user']] = blip['split'][0]
       else
-        trace[:polluters] << blip[:user]
+        trace['polluters'] << blip['user']
       end
     end
 
@@ -100,9 +99,9 @@ class Kanar
     mean = []
     denominator = 0
     @blips.each do |blip|
-      if trace[:commuters].keys.include? blip[:user]
+      if trace['commuters'].keys.include? blip['user']
         denominator += 1
-        blip[:acc].each_with_index do |dist, i|
+        blip['acc'].each_with_index do |dist, i|
           mean[i] ||= 0
           mean[i] += dist
         end
@@ -110,7 +109,7 @@ class Kanar
     end
 
     # Convert absolute distance values to array of relative distances to the path
-    trace[:points] = []
+    trace['points'] = []
     enum = steps.reverse.each_cons(2)     # polyline enumerator, gives each segment in the path going from B to A
     segment = Segment.new( *enum.next )   # current segment
     segment_range = (Segment.length(steps.first, segment.last))..total_distance
@@ -126,18 +125,18 @@ class Kanar
  
         # Calculate point of segment in which we are now
         # steps.last stands for location of beginning stop
-        trace[:points] << segment.intersection( *steps.first, distance )
+        trace['points'] << segment.intersection( *steps.first, distance )
 
         # TODO: what if null?
 
       rescue StopIteration
 #        p footprint
-        p "rescued from StopIteration #{total_distance} - #{distance} meters from A"
-        trace[:points] << steps.last
+        # p "rescued from StopIteration #{total_distance} - #{distance} meters from A"
+        trace['points'] << steps.last
         break
       end
     end
-    trace[:points].reverse!
+    trace['points'].reverse!
     
     # We are at the beginning stop A
     trace
