@@ -1,0 +1,56 @@
+--- 
+hash: 6724ca17d3668390033858221c00bafcbf21f187
+sources: 
+- Git: 
+    git: git://github.com/Stanley/aruba.git
+    uri: git://github.com/Stanley/aruba.git
+    ref: 79078133e4a718548d1e0173cfb96b7a3b8f3c9a
+- Rubygems: 
+    uri: http://rubygems.org
+specs: 
+- aruba: 
+    version: 0.1.9
+    source: 0
+- builder: 
+    version: 2.1.2
+- diff-lcs: 
+    version: 1.1.2
+- trollop: 
+    version: 1.16.2
+- gherkin: 
+    version: 1.0.30
+- json_pure: 
+    version: 1.4.3
+- term-ansicolor: 
+    version: 1.0.5
+- cucumber: 
+    version: 0.8.0
+- nayutaya-googlemaps-polyline: 
+    version: 0.0.1
+- rspec-core: 
+    version: 2.0.0.beta.11
+- rspec-expectations: 
+    version: 2.0.0.beta.11
+- rspec-mocks: 
+    version: 2.0.0.beta.11
+- rspec: 
+    version: 2.0.0.beta.11
+dependencies: 
+  nayutaya-googlemaps-polyline: 
+    version: ">= 0"
+    group: 
+    - :default
+  rspec: 
+    version: ~> 2.0.0.beta
+    group: 
+    - :test
+    require: 
+    - spec
+  cucumber: 
+    version: ">= 0"
+    group: 
+    - :test
+  aruba: 
+    version: ">= 0"
+    group: 
+    - :test

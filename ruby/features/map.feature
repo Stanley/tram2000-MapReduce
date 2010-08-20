@@ -6,10 +6,10 @@ Feature: mapper
 
   Scenario: simple map
     When I run "ruby ../../lib/mapper.rb" and type:
-    """
-    1:_sdpH_gayBgE??gE	\x95\x83\xA4data\xB5A@@@@@@@@@?VVVVWABEFG\xA4user\xA3foo\xA4time\xCEL&\x0E\xEA\x83\xA4data\xAD@@@VVVVWABEFG\xA4user\xA3bar\xA4time\xCEL&\x0E\xF2\x83\xA4data\xAD@@@CFAIDBHEDG\xA4user\xA4fake\xA4time\xCEL&\x0E\xF2\x83\xA4data\xB0@@@CFAIDBHEDGCFH\xA4user\xA5fake2\xA4time\xCEL&\x0E\xF2\x83\xA4data\xAD@@@VVVVWABEFG\xA4user\xA5fake3\xA4time\xCEL&\f\x9A
-    """
+      """
+      1:_sdpH_gayBgE??gE	[{"data": "A@@@@@@@@@?VVVVWABEFG", "user": "foo", "time": 1277562602}, {"data": "@@@VVVVWABEFG", "user": "bar", "time": 1277562610}, {"data": "@@@CFAIDBHEDG", "user": "fake", "time": 1277562610}, {"data": "@@@CFAIDBHEDGCFH", "user": "fake2", "time": 1277562610}, {"data": "@@@VVVVWABEFG", "user": "fake3", "time": 1277562010}]
+      """
     Then the output should contain:
-    """
-    \x85\xA4time\xCEL&\x0E\xF5\xA9commuters\x82\xA3foo\v\xA3bar\x03\xA9polluters\x93\xA4fake\xA5fake2\xA5fake3\xABpolyline_id\xA11\xA6points\x9A\x92\xCB@I\x00\x06{\xB1A\xEA\xCB@4\x00\x00\x00\x00\x00\x00\x92\xCB@I\x00\f\xF7b\x83\xD3\xCB@4\x00\x00\x00\x00\x00\x00\x92\xCB@I\x00\x13s\x13\xC5\xBC\xCB@4\x00\x00\x00\x00\x00\x00\x92\xCB@I\x00\x19\xEE\xC5\a\xA5\xCB@4\x00\x00\x00\x00\x00\x00\x92\xCB@I\x00 \xB5\xE7\x12^\xCB@4\x00\x00\x00\x00\x00\x00\x92\xCB@I\x00 \xC4\x9B\xA5\xE4\xCB@4\x00\fJ\x8F\xF88\x92\xCB@I\x00 \xC4\x9B\xA5\xE4\xCB@4\x00\x17\v\xAC\r\x0E\x92\xCB@I\x00 \xC4\x9B\xA5\xE4\xCB@4\x00&\xDD\xC3\xDE\xA1\x92\xCB@I\x00 \xC4\x9B\xA5\xE4\xCB@4\x004[\xE5\xCA\f\x92\xCB@I\x00 \xC4\x9B\xA5\xE4\xCB@4\x00A8\xFE\xF4\xB5
-    """
+      """
+      {"time": 1277562613, "commuters": {"foo": 11, "bar": 3}, "polluters": ["fake", "fake2", "fake3"], "polyline_id": "1", "points": [[50.00019785075331, 20.0], [50.00039570150661, 20.0], [50.000593552259915, 20.0], [50.00079140301322, 20.0], [50.000998246982576, 20.0], [50.001000000000005, 20.000187549733], [50.001000000000005, 20.000351647858274], [50.001000000000005, 20.000593052215326], [50.001000000000005, 20.000798934555903], [50.001000000000005, 20.000995218510713]]}
+      """

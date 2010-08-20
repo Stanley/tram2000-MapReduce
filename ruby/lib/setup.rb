@@ -4,7 +4,7 @@ count = 0
 Blip.by_poly.group_by{|b| b.poly}.each_pair do |poly, blips|
   begin
     polyline = Polyline.get(poly) || raise("Polyline \"" + poly + "\" was not found")
-    file << polyline.points + "\t" + blips.to_msgpack + "\n"
+    file << poly + ":" + polyline.points + "\t" + blips.to_json + "\n"
     count += 1
   rescue
     p $!

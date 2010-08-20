@@ -5,8 +5,8 @@ describe Kanar do
   describe "validation" do
     # Journey from A to B through C (111m+71m)
     before :all do
-      encoder = Polyline.new
-      @trace = Kanar.validate( "1:" + encoder.encode([[50.0, 20.0],[50.001, 20.0],[50.001, 20.001]])[:points],[
+      encoder = GoogleMapsPolyline::Encoder.new StringIO.new
+      @trace = Kanar.validate( "1:" + encoder.encode_points([[50_00000, 20_00000],[50_00100, 20_00000],[50_00100, 20_00100]]).string,[
         Blip.new({ 'data' => Blip.encode([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 22, 22, 22, 22, 23, 1, 2, 5, 6, 7]), 'user' => "foo", 'time' => Time.parse("26.06.2010 16:30:02").to_i }),
         Blip.new({ 'data' => Blip.encode([0, 0, 0, 22, 22, 22, 22, 23, 1, 2, 5, 6, 7]), 'user' => "bar", 'time' => Time.parse("26.06.2010 16:30:10").to_i }),
         Blip.new({ 'data' => Blip.encode([0, 0, 0, 3, 6, 1, 9, 4, 2, 8, 5, 4, 7]), 'user' => "fake", 'time' => Time.parse("26.06.2010 16:30:10").to_i }),
@@ -30,10 +30,20 @@ describe Kanar do
     it "should calculate waiting time for each valid blip submitter" do
       @trace['commuters'].should eql({"foo"=>11, "bar"=>3})
     end
-
     
     it "should tell where the vehicle was in each second" do
-      @trace['points'].should be_similar([[50.0002, 20.0],[50.0004, 20.0],[50.0006, 20.0],[50.0008, 20.0],[50.001, 20.0],[50.001, 20.0002],[50.001, 20.0004],[50.001, 20.0006],[50.001, 20.0008], [50.001, 20.001]], 0.00005)
+      @trace['points'].should be_similar([
+        [50.0002, 20.0],
+        [50.0004, 20.0],
+        [50.0006, 20.0],
+        [50.0008, 20.0],
+        [50.001, 20.0],
+        [50.001, 20.0002],
+        [50.001, 20.0004],
+        [50.001, 20.0006],
+        [50.001, 20.0008],
+        [50.001, 20.001]
+      ], 0.00005)
     end
   end
 end

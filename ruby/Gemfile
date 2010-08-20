@@ -1,0 +1,9 @@
+source "http://rubygems.org"
+
+gem "nayutaya-googlemaps-polyline"
+
+group :test do
+  gem "rspec", "~>2.0.0.beta", :require => "spec"
+  gem "cucumber"
+  gem "aruba", :git => "git://github.com/Stanley/aruba.git"
+end

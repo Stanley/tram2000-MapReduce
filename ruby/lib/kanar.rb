@@ -1,5 +1,6 @@
 $: << File.join(File.dirname(__FILE__))
-require 'polyline'
+require 'googlemaps_polyline/decoder'
+require 'stringio'
 require 'segment'
 require 'blip'
 
@@ -74,7 +75,8 @@ class Kanar
     trace['polluters'] = []
 
     trace['polyline_id'], encoded_polyline = polyline.split(":")
-    steps = Polyline.decode(encoded_polyline.gsub("\\\\", "\\")) # polyline
+    decoder = GoogleMapsPolyline::Decoder
+    steps = decoder.new(StringIO.new(encoded_polyline.gsub("\\\\", "\\"))).decode_points.map{|pair| pair.map{|l| l/100_000.0}}
     # TODO: upewnić się co do kierunku odcinka
     total_distance = Segment.length(steps.first, steps.last)
 
