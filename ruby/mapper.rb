@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # encoding: ascii
 
-$: << File.join(File.dirname(__FILE__), '.')
+$: << File.join(File.dirname(__FILE__), 'lib')
 require "rubygems"
 require "bundler/setup"
 require "json"
